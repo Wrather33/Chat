@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html>
+    <head>
+        <title>success</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div th:object="${user}">
+            <p th:text="*{firstName}"></p>
+            <p th:text="*{lastName}"></p>
+            <p th:text="*{email}"></p>
+        </div>
+        <a th:href="@{/createRoom/{id}(id=${user.getId()})}">Create room</a>
+        <p>Rooms:</p>
+        <div th:each="room : ${rooms}">
+            <a th:href=
+                   "@{/room/{id}(id=${room.getCreatorid()})}"
+                   ><p th:text="${room.getName()}"></p></a>
+        </div>
+        <br/>
+        <a th:href="@{/edit/{id}(id=${user.getId()})}">edit</a>
+        <form
+            th:method="DELETE" th:action="@{/delete/{id}(id=${user.getId()})}">
+            <button type="submit">Delete</button>
+        </form>
+        <form th:action="@{/logout}" th:method="POST">
+            <button type="submit">Logout</button>
+        </form>
+    </body>
+</html>

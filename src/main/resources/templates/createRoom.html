@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html>
+    <head>
+        <title>create</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <form  th:method="POST" th:action="@{/createRoom/{id}(id=${room.getCreatorid()})}"
+               th:object="${room}">
+             <label for="name">name</label>
+             <input type="name" name="name" th:field="*{name}"/>
+             <br/>
+             <input type="submit" value="create" />
+        </form>
+    </body>
+</html>

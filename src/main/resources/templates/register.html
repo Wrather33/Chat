@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html>
+    <head>
+        <title>register</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <form th:action="@{/register}" th:method="POST" th:object="${user}">
+             <input type="email" name="email" th:field="*{email}"/>
+             <label for="email">email</label>
+             <br/>
+             <input type="text" name="firstName" th:field="*{firstName}"/>
+             <label for="firstName">first name</label>
+             <br/>
+            <input type="text" name="lastName" th:field="*{lastName}"/>
+            <label for="lastName">last name</label>
+            <br/>
+            <input type="password" name="password" th:field="*{password}"/>
+            <label for="password">password</label>
+            <br/>
+            <input type="submit" value="register" />
+        </form>
+    </body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html>
+    <head>
+        <title>room</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            #messages{
+                 height: 50vh;
+                 width: 50vw;
+                 border:3px solid black;
+                 overflow-y: scroll;
+                 overflow-wrap: break-word;
+                 display:inline-block;
+            }
+            .sender{
+                font-weight: bold;
+            }
+            .date{
+                font-size: 50%;
+                text-align: right;
+            }
+            #users{
+                height: 20vh;
+                width: 10vw;
+                border:3px solid black;
+                overflow-y: scroll;
+                overflow-wrap: break-word;
+                margin: 5vh;
+            }
+            #messages img{
+                display:block;
+                width: 50%;
+            }
+             #messages video{
+                display:block;
+                width: 50%;
+            }
+             #messages audio{
+                display:block;
+                width: 50%;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <p>room:</p>
+        <p class="room" th:text="${room.getName()}"></p>
+        <p>users: </p>
+        <div id="users">
+            <div th:each="user: ${users}" class="user">
+            <p th:text="${user.getFirstName()} +' '+ ${user.getLastName()}"></p>
+        </div></div>
+        <div id="messages">
+        <div th:each="message : ${room.getMessages()}" class="message">
+                <span class="sender" th:text="${message.getSender()} + ':'"></span>
+                <p  class="content" th:text="${message.getContent()}"></p>
+                <p class="date" th:text="${message.getDate()}"></p>       
+        </div>
+        </div>
+        <form id="messageForm" name="messageForm">
+                        <textarea id="textarea" name="text"></textarea>
+                        <button type="submit" class="primary">Send</button>
+            </form>
+        <form enctype="multipart/form-data" id="fileForm" name="fileForm">
+   <p><input type="file" id="file" name="photo" multiple accept="image/*, video/*, audio/*">
+   <input type="submit" value="Отправить"></p>
+  </form>
+         <form th:object="${room}"
+            th:method="GET" th:action="@{/editRoom/{id} (id=${room.getCreatorid()})}">
+            <button type="submit">Edit</button>
+        </form>
+          <form th:object="${room}"
+            th:method="GET" th:action="@{/room/{id}/leave (id=${room.getCreatorid()})}">
+            <button type="submit">Leave</button>
+        </form>
+        <form th:object="${room}"
+            th:method="DELETE" th:action="@{/room/{id}(id=${room.getCreatorid()})}">
+            <button type="submit">Delete</button>
+        </form>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script type = "text/javascript">
+var messageForm = document.querySelector('#messageForm');
+var fileForm = document.querySelector('#fileForm');
+var messageInput = document.querySelector('#textarea');
+var messages = document.querySelector('#messages');
+var fileInput = document.querySelector('#file');
+var users = document.querySelector('#users');
+        var socket = new SockJS('http://localhost:8080/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, onConnected, onError);
+        function onConnected() {
+            console.log("its working");
+            stompClient.subscribe(window.location.pathname,  onMessageReceived);
+            stompClient.send(window.location.pathname+"/joinRoom",
+        {});
+        }
+        function onError(error) {
+    console.log(error);
+}
+
+function sendMessage(event) {
+    var messageContent = messageInput.value.trim();
+    if(messageContent) {
+        var chatMessage = {
+            sender: null,
+            content: messageInput.value,
+            type: 'CHAT'
+        };
+        stompClient.send(window.location.pathname+"/sendMessage", {}, JSON.stringify(chatMessage));
+        messageInput.value = '';
+    }
+    event.preventDefault();
+}
+function readAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+async function sendFile(){
+    var files = fileInput.files;
+    if(files.length) {
+        for(let i=0; i<files.length; i++){
+        const dataUrl = await readAsDataURL(files[i]);
+       var chatMessage = {
+            sender: null,
+            file: dataUrl,
+            type: 'FILE',
+            сontent: null
+        };
+        stompClient.send(window.location.pathname+"/sendFile", {}, JSON.stringify(chatMessage));
+        };
+        };     
+fileInput.value = null;
+}
+function getFile(event){
+    sendFile();
+    event.preventDefault();
+}
+function base64ImageToBlob(str) {
+  // extract content type and base64 payload from original string
+  var pos = str.indexOf(';base64,');
+  var type = str.substring(5, pos);
+  var b64 = str.substr(pos + 8);
+
+  // decode base64
+  var imageContent = atob(b64);
+
+  // create an ArrayBuffer and a view (as unsigned 8-bit)
+  var buffer = new ArrayBuffer(imageContent.length);
+  var view = new Uint8Array(buffer);
+
+  // fill the view, using the decoded base64
+  for(var n = 0; n < imageContent.length; n++) {
+    view[n] = imageContent.charCodeAt(n);
+  }
+
+  // convert ArrayBuffer to Blob
+  var blob = new Blob([buffer], { type: type });
+
+  return blob;
+}
+function onMessageReceived(payload) {
+    var message = JSON.parse(payload.body);
+    if(message.type === "CHAT"){
+        var messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        var sender = document.createElement("span");
+        var text = document.createElement("p");
+        var date = document.createElement("p");
+        sender.classList.add("sender");
+        text.classList.add("text");
+        date.classList.add("date");
+        sender.textContent = message.sender+":";
+        text.textContent = message.content;
+        date.textContent = message.date;
+         messageElement.appendChild(sender);
+          messageElement.appendChild(text);
+           messageElement.appendChild(date);
+           messages.appendChild(messageElement);
+           messages.scrollTop = messages.scrollHeight;
+        
+    }
+    else if(message.type === "JOIN"){
+        var searchUsers = users.querySelectorAll(".user p");
+        var searchText = message.sender;
+        var found;
+        var p = document.createElement("p");
+            p.textContent = searchText;
+            var div = document.createElement("div");
+            div.classList.add("user");
+            div.append(p);
+            users.appendChild(div);
+            var messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        var text = document.createElement("p");
+        text.textContent = searchText + ' joined!';
+        messageElement.appendChild(text);
+        messages.append(messageElement);
+        messages.scrollTop = messages.scrollHeight;
+        
+    }
+      else if(message.type === "LEAVE"){
+        var searchUsers = users.querySelectorAll(".user p");
+        var searchText = message.sender;
+        var messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        var text = document.createElement("p");
+        text.textContent = searchText + ' leave!';
+        messageElement.appendChild(text);
+        messages.append(messageElement);
+        messages.scrollTop = messages.scrollHeight;
+        for (var i = 0; i < searchUsers.length; i++) {
+            if (searchUsers[i].textContent === searchText) {
+                searchUsers[i].remove();
+                break;
+            }}
+    }
+    else if(message.type === "EDIT"){
+        var room = document.querySelector(".room");
+        room.textContent = message.content;
+        var messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        var text = document.createElement("p");
+        text.textContent = room.textContent + ' changed!';
+        messageElement.appendChild(text);
+        messages.append(messageElement);
+        messages.scrollTop = messages.scrollHeight;
+    }
+    else if(message.type === "FILE"){
+        var blob = base64ImageToBlob(message.file);
+        if(blob.type.startsWith('image')){
+        var messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        var sender = document.createElement("span");
+        var media = document.createElement("img");
+        var date = document.createElement("p");
+        sender.classList.add("sender");
+        media.src = message.file;
+        date.classList.add("date");
+        sender.textContent = message.sender+":";
+        date.textContent = message.date;
+         messageElement.appendChild(sender);
+          messageElement.appendChild(media);
+           messageElement.appendChild(date);
+           messages.appendChild(messageElement);
+           messages.scrollTop = messages.scrollHeight;
+    }
+    else if(blob.type.startsWith('video')){
+        var messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        var sender = document.createElement("span");
+        var media = document.createElement("video");
+        var source = document.createElement("source");
+        source.src = message.file;
+        source.type = blob.type;
+        media.appendChild(source);
+        media.controls = true;
+        var date = document.createElement("p");
+        sender.classList.add("sender");
+        date.classList.add("date");
+        sender.textContent = message.sender+":";
+        date.textContent = message.date;
+         messageElement.appendChild(sender);
+          messageElement.appendChild(media);
+           messageElement.appendChild(date);
+           messages.appendChild(messageElement);
+           messages.scrollTop = messages.scrollHeight;
+    }
+    else if(blob.type.startsWith('audio')){
+        var messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        var sender = document.createElement("span");
+        var media = document.createElement("audio");
+        var source = document.createElement("source");
+        source.src = message.file;
+        source.type = blob.type;
+        media.appendChild(source);
+        media.controls = true;
+        var date = document.createElement("p");
+        sender.classList.add("sender");
+        media.src = message.file;
+        date.classList.add("date");
+        sender.textContent = message.sender+":";
+        date.textContent = message.date;
+         messageElement.appendChild(sender);
+          messageElement.appendChild(media);
+           messageElement.appendChild(date);
+           messages.appendChild(messageElement);
+           messages.scrollTop = messages.scrollHeight;
+    }
+    }
+}
+messageForm.addEventListener('submit', sendMessage, true);
+fileForm.addEventListener('submit', getFile, true);
+
+
+    </script>
+    </body>
+</html>
