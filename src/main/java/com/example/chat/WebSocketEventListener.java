@@ -10,6 +10,7 @@ import com.example.chat.repository.RoomRepository;
 import com.example.chat.security.UserDetailsServiceImpl;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,9 @@ public class WebSocketEventListener {
     }
 
     @EventListener
-    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event)
+            throws IOException
+   {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());  
         Long room = Long.valueOf(headerAccessor.getSessionAttributes().get("room").toString());
         Optional<User> user = UserDetailsServiceImpl.getUserRepository().findByEmail(event.getUser().getName());
@@ -51,6 +54,8 @@ public class WebSocketEventListener {
         chatMessage.setType(ChatMessage.MessageType.LEAVE);
         chatMessage.setSender(String.format("%s %s", result.getFirstName(),
                 result.getLastName()));
+        chatMessage.setId(String.valueOf(result.getId()));
+        chatMessage.setPhoto(result.generateImage());
         roomRepository.removeFromUsers(result,room);
         messagingTemplate.convertAndSend(String.format("/room/%d", room), chatMessage);
     }

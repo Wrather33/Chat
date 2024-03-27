@@ -9,6 +9,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
+            .user img{
+                display:inline-block;
+                width: 20%;
+            }
+            .user p{
+                display:inline-block;
+            }
              #image img{
                 display:block;
                 width: 25%;
@@ -29,8 +36,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                 text-align: right;
             }
             #users{
-                height: 20vh;
-                width: 10vw;
+                height: 30vh;
+                width: 20vw;
                 border:3px solid black;
                 overflow-y: scroll;
                 overflow-wrap: break-word;
@@ -60,7 +67,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <p>users: </p>
         <div id="users">
             <div th:each="user: ${users}" class="user">
+            <img th:src="@{${user.generateImage()}}">
             <p th:text="${user.getFirstName()} +' '+ ${user.getLastName()}"></p>
+            <p th:text="${user.getId()}"></p>
         </div></div>
         <div id="messages">
         <div th:each="message : ${room.getMessages()}" class="message">
@@ -203,11 +212,22 @@ function onMessageReceived(payload) {
         var searchUsers = users.querySelectorAll(".user p");
         var searchText = message.sender;
         var found;
+        var img = document.createElement("img");
+        if(message.photo){
+        img.src = message.photo;
+    }
+    else{
+        img.src = "";
+    }
         var p = document.createElement("p");
+        var id = document.createElement("p");
+        id.textContent = message.id;
             p.textContent = searchText;
             var div = document.createElement("div");
             div.classList.add("user");
+            div.append(img);
             div.append(p);
+            div.append(id);
             users.appendChild(div);
             var messageElement = document.createElement('div');
         messageElement.classList.add('message');
@@ -219,7 +239,7 @@ function onMessageReceived(payload) {
         
     }
       else if(message.type === "LEAVE"){
-        var searchUsers = users.querySelectorAll(".user p");
+        var searchUsers = users.querySelectorAll(".user");
         var searchText = message.sender;
         var messageElement = document.createElement('div');
         messageElement.classList.add('message');
@@ -229,10 +249,16 @@ function onMessageReceived(payload) {
         messages.append(messageElement);
         messages.scrollTop = messages.scrollHeight;
         for (var i = 0; i < searchUsers.length; i++) {
-            if (searchUsers[i].textContent === searchText) {
-                searchUsers[i].remove();
+            var childList = searchUsers[i].children;
+            for (var j = 0; j< childList.length; j++) {
+                 if(childList[j].innerHTML === message.id){
+                     users.removeChild(searchUsers[i]);
                 break;
-            }}
+                 }
+                 
+                
+            }
+            }
     }
     else if(message.type === "EDIT"){
         var room = document.querySelector(".room");

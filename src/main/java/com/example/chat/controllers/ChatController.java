@@ -10,6 +10,7 @@ import com.example.chat.repository.RoomRepository;
 import com.example.chat.security.UserDetailsServiceImpl;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.security.Principal;
 import java.sql.SQLException;
@@ -61,7 +62,8 @@ private SimpMessagingTemplate simpMessagingTemplate;
      @MessageMapping("/{id}/joinRoom")
     public void addUser(
              Authentication authentication, @DestinationVariable("id") Long id
-    , SimpMessageHeaderAccessor headerAccessor) {
+    , SimpMessageHeaderAccessor headerAccessor) 
+    throws IOException{
          UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Optional<User> user = UserDetailsServiceImpl.getUserRepository().findByEmail(userDetails.getUsername());
         User result = user.get();
@@ -70,6 +72,8 @@ private SimpMessagingTemplate simpMessagingTemplate;
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setSender(String.format("%s %s", result.getFirstName(),
                 result.getLastName()));
+        chatMessage.setPhoto(result.generateImage());
+        chatMessage.setId(String.valueOf(result.getId()));
         chatMessage.setType(ChatMessage.MessageType.JOIN);
         roomRepository.addToUsers(result, id);
         simpMessagingTemplate.convertAndSend(String.format("/room/%d", id)
@@ -78,7 +82,7 @@ private SimpMessagingTemplate simpMessagingTemplate;
     }
     @MessageMapping("/{id}/sendFile")
     public void sendFile(@Payload ChatMessage chatMessage
-    ,   Authentication authentication, @DestinationVariable("id") Long id) throws SQLException{
+    ,   Authentication authentication, @DestinationVariable("id") Long id){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Optional<User> user = UserDetailsServiceImpl.getUserRepository().findByEmail(userDetails.getUsername());
         User result = user.get();

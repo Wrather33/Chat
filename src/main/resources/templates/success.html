@@ -13,6 +13,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                 display:block;
                 width: 25%;
             }
+            #rooms img{
+                display:inline-block;
+                width: 5%;
+            }
+            #rooms p{
+                display:inline-block;
+            }
         </style>
     </head>
     <body>
@@ -35,7 +42,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         </form>
         <a th:href="@{/createRoom/{id}(id=${user.getId()})}">Create room</a>
         <p>Rooms:</p>
-        <div th:each="room : ${rooms}">
+        <div th:each="room : ${rooms}" id="rooms">
+            <img th:src="@{${room.generateImage()}}">
             <a th:href=
                    "@{/room/{id}(id=${room.getCreatorid()})}"
                    ><p th:text="${room.getName()}"></p></a>

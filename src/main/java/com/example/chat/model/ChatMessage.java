@@ -29,5 +29,6 @@ public class ChatMessage {
     private String date;
     private String file;
     private String photo;
+    private String id;
 
 }
