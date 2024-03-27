@@ -13,7 +13,10 @@ import com.example.chat.security.UserDetailsServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.security.Principal;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +39,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -73,6 +80,73 @@ public void initBinder(WebDataBinder binder) {
             return String.format("redirect:/room/%d", id);
         }
 }
+    @DeleteMapping("/avatar/{id}")
+    public String deleteAvatar(@PathVariable("id") Long id, Authentication authentication
+    , Model model){
+           UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Optional<User> user = UserDetailsServiceImpl.getUserRepository().findByEmail(userDetails.getUsername());
+        User result = user.get();
+        if(id.equals(result.getId())){
+        result.setPhoto(null);
+        UserDetailsServiceImpl.getUserRepository().save(result);
+        }
+        return "redirect:/success";
+    }
+    @PostMapping("/avatar/{id}")
+    public String setAvatar(@RequestParam(name = "photo", required = false) MultipartFile photo, @PathVariable("id") Long id,
+     Authentication authentication, Model model) throws IOException{
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Optional<User> user = UserDetailsServiceImpl.getUserRepository().findByEmail(userDetails.getUsername());
+        User result = user.get();
+        if(id.equals(result.getId())){
+        result.setPhoto(photo.getBytes());
+       UserDetailsServiceImpl.getUserRepository().save(result);
+        }
+       return "redirect:/success";
+        
+    }
+    @PostMapping("/editImage/{id}")
+    public String editImage(@RequestParam(name = "photo", required = false) MultipartFile photo, @PathVariable("id") Long id,
+     Authentication authentication, Model model) throws IOException{
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User first = UserDetailsServiceImpl.getUserRepository().findByEmail(userDetails.getUsername()).get();
+       User second = UserDetailsServiceImpl.getUserRepository().findById(id).get();
+       if(first.getId().equals(second.getId())){
+        Room roomUpdate = roomRepository.findByCreatorid(id).get();
+        roomUpdate.setPhoto(photo.getBytes());
+        roomRepository.save(roomUpdate);
+        model.addAttribute("room", roomUpdate);
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(ChatMessage.MessageType.PHOTO_ROOM);
+        chatMessage.setContent(roomUpdate.getName());
+        chatMessage.setPhoto(roomUpdate.generateImage());
+        simpMessagingTemplate.convertAndSend(String.format("/room/%d", id)
+                ,chatMessage);
+       }
+       return String.format("redirect:/editRoom/%d", id);
+        
+    }
+    @DeleteMapping("/editImage/{id}")
+    public String deleteImage(@RequestParam(name = "photo", required = false) MultipartFile photo, @PathVariable("id") Long id,
+     Authentication authentication, Model model) throws IOException{
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User first = UserDetailsServiceImpl.getUserRepository().findByEmail(userDetails.getUsername()).get();
+       User second = UserDetailsServiceImpl.getUserRepository().findById(id).get();
+       if(first.getId().equals(second.getId())){
+        Room roomUpdate = roomRepository.findByCreatorid(id).get();
+        roomUpdate.setPhoto(null);
+        roomRepository.save(roomUpdate);
+        model.addAttribute("room", roomUpdate);
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(ChatMessage.MessageType.PHOTO_ROOM);
+        chatMessage.setContent(roomUpdate.getName());
+        chatMessage.setPhoto(roomUpdate.generateImage());
+        simpMessagingTemplate.convertAndSend(String.format("/room/%d", id)
+                ,chatMessage);
+       }
+      return String.format("redirect:/editRoom/%d", id);
+            
+    }
     @PatchMapping("/editRoom/{id}")
     public String editRoom(@ModelAttribute("room") Room room
     , @PathVariable("id") Long id){
@@ -112,7 +186,7 @@ public void initBinder(WebDataBinder binder) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Optional<User> user = UserDetailsServiceImpl.getUserRepository().findByEmail(userDetails.getUsername());
         User result = user.get();
-       //roomRepository.removeFromUsers(result, id);
+       roomRepository.removeFromUsers(result, id);
        return "redirect:/success";
     }
     @DeleteMapping("/room/{id}")

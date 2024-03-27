@@ -31,5 +31,4 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             registration.setSendBufferSizeLimit(Integer.MAX_VALUE);
             registration.setSendTimeLimit(Integer.MAX_VALUE);
         }
-
 }

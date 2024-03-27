@@ -7,16 +7,24 @@ import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.MultipartConfigElement;
 import java.util.Arrays;
 import javax.sql.DataSource;
+import org.apache.catalina.startup.Tomcat;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
+import org.springframework.web.multipart.support.MultipartFilter;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -29,6 +37,12 @@ public FilterRegistrationBean hiddenHttpMethodFilter() {
     FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new HiddenHttpMethodFilter());
     filterRegistrationBean.setUrlPatterns(Arrays.asList("/*"));
     return filterRegistrationBean;
+}
+@Bean
+public MultipartConfigElement multipartConfigElement() {
+  MultipartConfigFactory factory = new MultipartConfigFactory();
+  factory.setMaxFileSize(DataSize.ofBytes(Integer.MAX_VALUE));
+  return factory.createMultipartConfig();
 }
 @Bean
     public DataSource dataSource(){

@@ -23,9 +23,14 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URLConnection;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,5 +60,18 @@ public class Room{
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "messages")
     private Collection<ChatMessage> messages = new ArrayList<>();
+    @Column(name = "photo")
+    private byte[] photo;
+    public String generateImage() throws IOException {
+        if(getPhoto() != null){
+        InputStream is = new ByteArrayInputStream(photo);
+        String mimeType = URLConnection.guessContentTypeFromStream(is);
+        is.close();
+        return String.format("data:%s;base64,%s", mimeType, Base64.getEncoder().encodeToString(photo));
+        }
+        else {
+            return null;
+        }
+}
     
 }

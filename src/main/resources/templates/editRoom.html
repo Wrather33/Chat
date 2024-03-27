@@ -8,9 +8,26 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <title>edit</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+             #image img{
+                display:block;
+                width: 25%;
+            }</style>
     </head>
     <body>
-         <form th:object="${room}"
+        <div id="image">
+            <img th:src="@{${room.generateImage()}}">
+        </div>
+        <form enctype="multipart/form-data" id="photoForm" name="photoForm"
+              th:method="POST" th:action="@{/editImage/{id}(id=${room.getCreatorid()})}">
+   <p><input type="file" id="photo" name="photo" accept="image/*">
+   <input type="submit" value="Установить фото"></p>
+  </form>
+         <form
+            th:method="DELETE" th:action="@{/editImage/{id}(id=${room.getCreatorid()})}">
+            <button type="submit">Удалить фото</button>
+        </form>
+        <form th:object="${room}"
             th:method="PATCH" th:action="@{/editRoom/{id}(id=${room.getCreatorid()})}">
              <input type="name" name="name" th:field="*{name}"
                     th:value="*{name}"/>

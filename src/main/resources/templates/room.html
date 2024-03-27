@@ -9,6 +9,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
+             #image img{
+                display:block;
+                width: 25%;
+            }
             #messages{
                  height: 50vh;
                  width: 50vw;
@@ -50,6 +54,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
     <body>
         <p>room:</p>
         <p class="room" th:text="${room.getName()}"></p>
+        <div id="image">
+            <img th:src="@{${room.generateImage()}}">
+        </div>
         <p>users: </p>
         <div id="users">
             <div th:each="user: ${users}" class="user">
@@ -300,6 +307,16 @@ function onMessageReceived(payload) {
            messages.appendChild(messageElement);
            messages.scrollTop = messages.scrollHeight;
     }
+    }
+    else if(message.type === "PHOTO_ROOM"){
+        var image = document.querySelector("#image img");
+        if(message.photo){
+        image.src = message.photo;
+    }
+    else{
+        image.src = "";
+    }
+        
     }
 }
 messageForm.addEventListener('submit', sendMessage, true);

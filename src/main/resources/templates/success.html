@@ -8,6 +8,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <title>success</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            #image img{
+                display:block;
+                width: 25%;
+            }
+        </style>
     </head>
     <body>
         <div th:object="${user}">
@@ -15,6 +21,18 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
             <p th:text="*{lastName}"></p>
             <p th:text="*{email}"></p>
         </div>
+        <div id="image">
+            <img th:src="@{${user.generateImage()}}">
+        </div>
+        <form enctype="multipart/form-data" id="fileForm" name="fileForm"
+              th:method="POST" th:action="@{/avatar/{id}(id=${user.getId()})}">
+   <p><input type="file" id="file" name="photo" accept="image/*">
+   <input type="submit" value="Установить фото"></p>
+  </form>
+         <form
+            th:method="DELETE" th:action="@{/avatar/{id}(id=${user.getId()})}">
+            <button type="submit">Удалить фото</button>
+        </form>
         <a th:href="@{/createRoom/{id}(id=${user.getId()})}">Create room</a>
         <p>Rooms:</p>
         <div th:each="room : ${rooms}">

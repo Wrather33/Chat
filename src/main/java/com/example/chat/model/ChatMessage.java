@@ -18,7 +18,9 @@ public class ChatMessage {
         JOIN,
         LEAVE,
         EDIT,
-        FILE
+        FILE,
+        PHOTO_USER,
+        PHOTO_ROOM
     }
 
     private MessageType type;
@@ -26,5 +28,6 @@ public class ChatMessage {
     private String sender;
     private String date;
     private String file;
+    private String photo;
 
 }

@@ -16,6 +16,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLConnection;
+import java.util.Base64;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.NaturalId;
@@ -46,4 +51,17 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     @Column(name = "status")
     private Status status;
+    @Column(name = "photo")
+    private byte[] photo;
+    public String generateImage() throws IOException {
+        if(getPhoto() != null){
+        InputStream is = new ByteArrayInputStream(photo);
+        String mimeType = URLConnection.guessContentTypeFromStream(is);
+        is.close();
+        return String.format("data:%s;base64,%s", mimeType, Base64.getEncoder().encodeToString(photo));
+        }
+        else {
+            return null;
+        }
+}
 }
