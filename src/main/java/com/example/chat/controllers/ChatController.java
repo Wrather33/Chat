@@ -52,6 +52,7 @@ private SimpMessagingTemplate simpMessagingTemplate;
        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Optional<User> user = UserDetailsServiceImpl.getUserRepository().findByEmail(userDetails.getUsername());
         User result = user.get();
+        chatMessage.setId(String.valueOf(result.getId()));
         chatMessage.setDate(new Date().toString());
         chatMessage.setSender(String.format("%s %s", result.getFirstName(),
                 result.getLastName()));
@@ -86,6 +87,7 @@ private SimpMessagingTemplate simpMessagingTemplate;
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Optional<User> user = UserDetailsServiceImpl.getUserRepository().findByEmail(userDetails.getUsername());
         User result = user.get();
+        chatMessage.setId(String.valueOf(result.getId()));
         chatMessage.setDate(new Date().toString());
         chatMessage.setSender(String.format("%s %s", result.getFirstName(),
                 result.getLastName()));
