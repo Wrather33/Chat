@@ -10,10 +10,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <form  th:method="POST" th:action="@{/createRoom/{id}(id=${room.getCreatorid()})}"
-               th:object="${room}">
+        <form th:method="POST" th:action="@{/createRoom/{id}(id=${room.getCreatorid()})}"
+               th:object="${room}"
+               enctype="multipart/form-data">
              <label for="name">name</label>
              <input type="name" name="name" th:field="*{name}"/>
+             <br/>
+             <label for="photo">photo</label>
+             <input type="file" id="file" name="file" accept="image/*">
              <br/>
              <input type="submit" value="create" />
         </form>

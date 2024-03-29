@@ -127,7 +127,7 @@ public void initBinder(WebDataBinder binder) {
         
     }
     @DeleteMapping("/editImage/{id}")
-    public String deleteImage(@RequestParam(name = "photo", required = false) MultipartFile photo, @PathVariable("id") Long id,
+    public String deleteImage(@PathVariable("id") Long id,
      Authentication authentication, Model model) throws IOException{
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         User first = UserDetailsServiceImpl.getUserRepository().findByEmail(userDetails.getUsername()).get();
@@ -220,8 +220,9 @@ public void initBinder(WebDataBinder binder) {
     }
      @PostMapping("/createRoom/{id}")
     public String createRoom(@ModelAttribute("room") Room room
-    , @PathVariable("id") Long id){
+    , @PathVariable("id") Long id, @RequestParam(name = "file", required = false) MultipartFile file){
         try{
+            room.setPhoto(file.getBytes());
             room.setCreatorid(id);
             roomRepository.save(room);
         }
@@ -307,8 +308,10 @@ public void initBinder(WebDataBinder binder) {
         return "redirect:/login";
     }
      @PostMapping("/register")
-    public String addUser(@ModelAttribute("user") User user){
+    public String addUser(@ModelAttribute("user") User user,
+            @RequestParam(name = "file", required = false) MultipartFile file) throws IOException{
         try{
+            user.setPhoto(file.getBytes());
             UserDetailsServiceImpl.save(user);
         }
         catch(Exception e){
