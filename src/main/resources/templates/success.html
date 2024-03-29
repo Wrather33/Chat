@@ -41,6 +41,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
             <button type="submit">Удалить фото</button>
         </form>
         <a th:href="@{/createRoom/{id}(id=${user.getId()})}">Create room</a>
+        <br/>
+        <a th:href="@{/success}">Update</a>
         <p>Rooms:</p>
         <div th:each="room : ${rooms}" id="rooms">
             <img th:src="@{${room.generateImage()}}">

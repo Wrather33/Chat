@@ -50,6 +50,7 @@ public class WebSocketEventListener {
         Long room = Long.valueOf(headerAccessor.getSessionAttributes().get("room").toString());
         Optional<User> user = UserDetailsServiceImpl.getUserRepository().findByEmail(event.getUser().getName());
         User result = user.get();
+        if(roomRepository.findByCreatorid(room).isPresent()){
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setType(ChatMessage.MessageType.LEAVE);
         chatMessage.setSender(String.format("%s %s", result.getFirstName(),
@@ -58,5 +59,6 @@ public class WebSocketEventListener {
         chatMessage.setPhoto(result.generateImage());
         roomRepository.removeFromUsers(result,room);
         messagingTemplate.convertAndSend(String.format("/room/%d", room), chatMessage);
+        }
     }
 }

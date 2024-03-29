@@ -19,6 +19,7 @@ public class ChatMessage {
         LEAVE,
         EDIT,
         FILE,
+        REMOVE,
         PHOTO_USER,
         PHOTO_ROOM
     }

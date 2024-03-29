@@ -44,6 +44,10 @@ public MultipartConfigElement multipartConfigElement() {
   factory.setMaxFileSize(DataSize.ofBytes(Integer.MAX_VALUE));
   return factory.createMultipartConfig();
 }
+@Bean 
+public RoomListener RoomListener(){
+    return new RoomListener();
+}
 @Bean
     public DataSource dataSource(){
         DriverManagerDataSource dataSource = new DriverManagerDataSource();

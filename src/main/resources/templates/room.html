@@ -260,6 +260,9 @@ function onMessageReceived(payload) {
             }
             }
     }
+    else if(message.type === "REMOVE"){
+        window.location.replace("/success");
+    }
     else if(message.type === "EDIT"){
         var room = document.querySelector(".room");
         room.textContent = message.content;

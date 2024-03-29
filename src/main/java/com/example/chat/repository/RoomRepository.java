@@ -19,8 +19,9 @@ import org.springframework.stereotype.Repository;
  * @author dlyad
  */
 @Repository
-@Transactional
 public interface RoomRepository extends JpaRepository<Room, Long>, CustomizedRoomRepository{
+    @Transactional
     Optional<Room> findByCreatorid(Long id);
+    @Transactional
     Optional<Room> deleteByCreatorid(Long id);
 }
