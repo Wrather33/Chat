@@ -31,7 +31,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <div id="image">
             <img th:src="@{${user.generateImage()}}">
         </div>
-        <form enctype="multipart/form-data" id="fileForm" name="fileForm"
+        <!--<form enctype="multipart/form-data" id="fileForm" name="fileForm"
               th:method="POST" th:action="@{/avatar/{id}(id=${user.getId()})}">
    <p><input type="file" id="file" name="photo" accept="image/*">
    <input type="submit" value="Установить фото"></p>
@@ -39,7 +39,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
          <form
             th:method="DELETE" th:action="@{/avatar/{id}(id=${user.getId()})}">
             <button type="submit">Удалить фото</button>
-        </form>
+        </form>-->
         <a th:href="@{/createRoom/{id}(id=${user.getId()})}">Create room</a>
         <br/>
         <a th:href="@{/success}">Update</a>
@@ -51,7 +51,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                    ><p th:text="${room.getName()}"></p></a>
         </div>
         <br/>
-        <a th:href="@{/edit/{id}(id=${user.getId()})}">edit</a>
+        <a th:href="@{/edit/{id}(id=${user.getId()})}">Edit</a>
         <form
             th:method="DELETE" th:action="@{/delete/{id}(id=${user.getId()})}">
             <button type="submit">Delete</button>
@@ -59,5 +59,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <form th:action="@{/logout}" th:method="POST">
             <button type="submit">Logout</button>
         </form>
+        
     </body>
 </html>

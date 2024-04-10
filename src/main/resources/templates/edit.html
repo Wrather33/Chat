@@ -8,9 +8,28 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <title>edit</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+             #image img{
+                display:block;
+                width: 25%;
+            }
+        </style>
     </head>
     <body>
-        <form th:action="@{/edit/{id}(id=${user.getId()})}" th:method="PATCH" th:object="${user}">
+         <div id="image">
+            <img th:src="@{${user.generateImage()}}">
+        </div>
+        <form enctype="multipart/form-data" id="fileForm" name="fileForm"
+              th:method="POST" th:action="@{/avatar/{id}(id=${user.getId()})}">
+   <p><input type="file" id="file" name="photo" accept="image/*">
+   <input type="submit" value="Установить фото"></p>
+  </form>
+         <form
+            th:method="DELETE" th:action="@{/avatar/{id}(id=${user.getId()})}">
+            <button type="submit">Удалить фото</button>
+        </form>
+        <form th:action="@{/edit/{id}(id=${user.getId()})}" th:method="PATCH" th:object="${user}"
+              enctype="multipart/form-data">
             <input type="email" name="email" th:field="*{email}"/>
              <label for="email">email</label>
              <br/>
@@ -25,6 +44,15 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
             <br/>
             <input type="submit" value="edit" />
         </form>
-        
+        <script>
+            let control = document.querySelector("#control"),
+    clearBn = document.querySelector("#clear");
+clearBn.addEventListener("click", function(){
+   control.value = '';
+   let newControl = control.cloneNode( true );
+   control.replaceWith( newControl );
+   control = newControl;
+});
+        </script>
     </body>
 </html>

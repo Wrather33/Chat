@@ -90,7 +90,7 @@ public void initBinder(WebDataBinder binder) {
         result.setPhoto(null);
         UserDetailsServiceImpl.getUserRepository().save(result);
         }
-        return "redirect:/success";
+        return String.format("redirect:/edit/%d", id);
     }
     @PostMapping("/avatar/{id}")
     public String setAvatar(@RequestParam(name = "photo", required = false) MultipartFile photo, @PathVariable("id") Long id,
@@ -102,7 +102,8 @@ public void initBinder(WebDataBinder binder) {
         result.setPhoto(photo.getBytes());
        UserDetailsServiceImpl.getUserRepository().save(result);
         }
-       return "redirect:/success";
+        return String.format("redirect:/edit/%d", id);
+        
         
     }
     @PostMapping("/editImage/{id}")
