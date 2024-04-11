@@ -6,7 +6,9 @@ package com.example.chat;
 
 import com.example.chat.model.ChatMessage;
 import com.example.chat.model.Room;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostRemove;
+import jakarta.persistence.PostUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
@@ -17,12 +19,22 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 public class RoomListener {
      @Autowired
 private SimpMessagingTemplate simpMessagingTemplate;
+  
     @PostRemove
-    private void afterRoomDelete(Room room) {
+    private void afterRoomDeleted(Room room) {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setType(ChatMessage.MessageType.REMOVE);
+        simpMessagingTemplate.convertAndSend("/success", "delete");
         simpMessagingTemplate.convertAndSend(String.format("/room/%d", room.getCreatorid())
                 ,chatMessage);
+    }
+    @PostPersist
+    private void afterRoomCreated(Room room){
+                simpMessagingTemplate.convertAndSend("/success", "create");
+    }
+    @PostUpdate
+    private void afterRoomUpdated(Room room){
+                simpMessagingTemplate.convertAndSend("/success", "update");
     }
     
 }

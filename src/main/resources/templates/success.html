@@ -59,6 +59,25 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <form th:action="@{/logout}" th:method="POST">
             <button type="submit">Logout</button>
         </form>
-        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script type = "text/javascript">
+             var socket = new SockJS('http://localhost:8080/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, onConnected, onError);
+        function onConnected() {
+            console.log("its working");
+            stompClient.subscribe("/success",  onMessageReceived);
+        }
+        function onError(error) {
+    console.log(error);
+}
+function onMessageReceived(payload) {
+    window.location.reload();
+}
+
+        </script>
     </body>
 </html>

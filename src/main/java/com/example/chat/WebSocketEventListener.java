@@ -47,6 +47,7 @@ public class WebSocketEventListener {
             throws IOException
    {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());  
+        if(headerAccessor.getSessionAttributes().get("room") != null){
         Long room = Long.valueOf(headerAccessor.getSessionAttributes().get("room").toString());
         Optional<User> user = UserDetailsServiceImpl.getUserRepository().findByEmail(event.getUser().getName());
         User result = user.get();
@@ -61,4 +62,5 @@ public class WebSocketEventListener {
         messagingTemplate.convertAndSend(String.format("/room/%d", room), chatMessage);
         }
     }
+   }
 }
